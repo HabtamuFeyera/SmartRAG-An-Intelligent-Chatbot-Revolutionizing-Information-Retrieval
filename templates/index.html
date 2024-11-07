@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartRAG PDF Query System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Welcome to the SmartRAG PDF Query System!</h1>
+
+<div class="container">
+    <!-- File Upload Form -->
+    <div class="form-group">
+        <label for="file">Upload PDF</label>
+        <input type="file" id="file" accept="application/pdf">
+        <button class="btn" id="uploadBtn">Upload PDF</button>
+    </div>
+
+    <!-- Query Form -->
+    <div class="form-group">
+        <label for="query">Enter your Query</label>
+        <textarea id="query" rows="4" placeholder="Type your question here"></textarea>
+        <button class="btn" id="submitBtn">Submit Query</button>
+    </div>
+
+    <!-- Output -->
+    <div id="response" class="output"></div>
+</div>
+
+<script>
+    // Handle file upload
+    document.getElementById("uploadBtn").onclick = function() {
+        var fileInput = document.getElementById("file");
+        var file = fileInput.files[0];
+        if (file) {
+            var formData = new FormData();
+            formData.append("file", file);
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error))
+            .catch(error => console.error("Error:", error));
+        } else {
+            alert("Please select a PDF file.");
+        }
+    };
+
+    // Handle query submission
+    document.getElementById("submitBtn").onclick = function() {
+        var query = document.getElementById("query").value;
+        if (query.trim() === "") {
+            alert("Please enter a query.");
+            return;
+        }
+
+        fetch("/query", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ query: query })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("response").innerText = "Assistant: " + data.response;
+        })
+        .catch(error => console.error("Error:", error));
+    };
+</script>
+
+</body>
+</html>
